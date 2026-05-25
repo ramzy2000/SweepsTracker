@@ -1,0 +1,14 @@
+﻿@inherits LayoutComponentBase
+@inject AppState appState
+
+<div class="page">
+    <main>
+        <article class="content px-4">
+            @Body
+        </article>
+        @if(appState.isBackButton)
+        {
+            <button class="btn btn-primary">Back</button>
+        }
+    </main>
+</div>
