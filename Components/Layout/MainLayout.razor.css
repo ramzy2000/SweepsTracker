@@ -2,10 +2,13 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    background-color: #212529;
 }
 
 main {
     flex: 1;
+    padding-top: 10%;
+    background-color: #212529;
 }
 
 .sidebar {
@@ -13,8 +16,8 @@ main {
 }
 
 .top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
+    background-color: #212529;
+    border-bottom: 1px solid #212529;
     justify-content: flex-end;
     height: 3.5rem;
     display: flex;
