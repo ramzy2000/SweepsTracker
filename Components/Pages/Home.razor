@@ -1,11 +1,21 @@
 ﻿@page "/"
+@inject NavigationManager navigationManager
+@inject AppState appState
 
 <div class="container">
     <img class ="logo" src="./images/home_logo.png"/>
 </div>
 
 <div class="d-grid gap-4 col-10 mx-auto">
-  <button class="btn btn-primary" type="button">New Game</button>
+  <button @onclick="newGameClicked" class="btn btn-primary" type="button">New Game</button>
   <button class="btn btn-primary" type="button">Continue Game</button>
   <button class="btn btn-primary" type="button">History</button>
 </div>
+
+@code {
+  public void newGameClicked()
+  {
+    navigationManager.NavigateTo("new-game");
+    appState.isBackButton = true;
+  }
+}
