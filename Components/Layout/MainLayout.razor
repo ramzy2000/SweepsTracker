@@ -1,6 +1,6 @@
 ﻿@inherits LayoutComponentBase
-@inject AppState appState
-@inject IJSRuntime jSRuntime
+
+@inject IJSRuntime jsRuntime
 @inject NavigationManager navigationManager
 
 <div class="page">
@@ -8,16 +8,22 @@
         <article class="content px-4">
             @Body
         </article>
-        @if(navigationManager.Uri != "https://0.0.0.1/")
+        @if (ShouldShowBackButton())
         {
-            <button @onclick="backButtonClicked" class="btn btn-primary">Back</button>
+            <button type="button" @onclick="BackButtonClicked" class="btn btn-primary back-button" aria-label="Go back to the previous page">Back</button>
         }
     </main>
 </div>
 
 @code {
-    public async Task backButtonClicked()
+    private bool ShouldShowBackButton()
     {
-        await jSRuntime.InvokeVoidAsync("history.back");
+        var relativePath = navigationManager.ToBaseRelativePath(navigationManager.Uri);
+        return !string.IsNullOrWhiteSpace(relativePath);
+    }
+
+    private async Task BackButtonClicked()
+    {
+        await jsRuntime.InvokeVoidAsync("history.back");
     }
 }
