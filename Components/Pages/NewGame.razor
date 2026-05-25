@@ -5,7 +5,7 @@
     <section class="new-game-shell">
         <header class="new-game-header">
             <h1>New Game Setup</h1>
-            <p>Add players to begin your next sweepstakes round.</p>
+            <p>Add players to begin a new game of sweeps. </p>
         </header>
 
         <div class="add-player-card">
@@ -104,7 +104,7 @@ else if (currentStep == 2)
 
         <footer class="actions-row two-actions">
             <button class="btn btn-outline-light secondary-action" @onclick="BackToPlayersStep">Back</button>
-            <button class="btn btn-primary next-button" @onclick="CreateNewGame" disabled="!CanCreateGame">Create New Game</button>
+            <button class="btn btn-primary next-button" @onclick="CreateNewGame" disabled="@(!CanCreateGame)">Create New Game</button>
         </footer>
     </section>
 }
