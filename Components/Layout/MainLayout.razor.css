@@ -8,7 +8,27 @@
 main {
     flex: 1;
     padding-top: 10%;
+    padding-bottom: 6rem;
     background-color: #212529;
+}
+
+.page .back-button {
+    position: fixed;
+    left: 50%;
+    bottom: max(1rem, env(safe-area-inset-bottom));
+    transform: translateX(-50%);
+    min-width: 160px;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    z-index: 900;
+}
+
+@media (max-width: 640.98px) {
+    .page .back-button {
+        width: calc(100% - 2rem);
+        max-width: 420px;
+    }
 }
 
 .sidebar {
