@@ -22,7 +22,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
         await sweepsDatabase.CloseAsync();
         Assert.True(success);
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
@@ -46,10 +46,10 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
-        Assert.True(await sweepsDatabase.MarkGameCompleted(1) == ""); // mark existing game completed
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        Assert.True(await sweepsDatabase.MarkGameCompletedAsync(1) == ""); // mark existing game completed
 
-        Assert.False(await sweepsDatabase.MarkGameCompleted(5) == ""); // try mark non existant game completed
+        Assert.False(await sweepsDatabase.MarkGameCompletedAsync(5) == ""); // try mark non existant game completed
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
     }
@@ -71,8 +71,8 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
-        Assert.False(await sweepsDatabase.MarkGameCompleted(1) == ""); // mark existing game completed
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        Assert.False(await sweepsDatabase.MarkGameCompletedAsync(1) == ""); // mark existing game completed
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
     }
@@ -94,7 +94,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
 
         // add some score
 
@@ -102,7 +102,7 @@ public class Database
         roundScores.Add(player, 30);
         roundScores.Add(player1, 50);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScores(game.ID, roundScores));
+        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
@@ -125,7 +125,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
 
         // add some score
 
@@ -133,13 +133,13 @@ public class Database
         roundScores.Add(player, 30);
         roundScores.Add(player1, 50);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScores(game.ID, roundScores));
+        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScores(game.ID, roundScores));
+        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScores(game.ID, roundScores));
+        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
 
-        Assert.False(await sweepsDatabase.AddRoundScores(game.ID, roundScores) == ""); // should fail and game should be over
+        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == ""); // should fail and game should be over
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
@@ -164,9 +164,9 @@ public class Database
         players.Add(player1);
 
         // create two games
-        bool success = await sweepsDatabase.CreateNewGame(game, players);
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
 
-        await sweepsDatabase.CreateNewGame(game, players); 
+        await sweepsDatabase.CreateNewGameAsync(game, players); 
 
         List<Game> activeGames =  await sweepsDatabase.GetActiveGamesAsync();
         foreach(Game activeGame in activeGames)

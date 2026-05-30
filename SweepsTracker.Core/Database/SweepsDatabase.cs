@@ -30,7 +30,7 @@ public class SweepsDatabase
         await database.CloseAsync();
     }
 
-    public async Task<bool> CreateNewGame(Game game, List<Player> players)
+    public async Task<bool> CreateNewGameAsync(Game game, List<Player> players)
     {
         if(game.MaxScore < 150 || game.MaxScore > 500)
             return false;
@@ -59,7 +59,7 @@ public class SweepsDatabase
         return false;
     }
 
-    public async Task<string> MarkGameCompleted(int gameID)
+    public async Task<string> MarkGameCompletedAsync(int gameID)
     {
         await OpenAsync();
         // get the selected game
@@ -133,7 +133,7 @@ public class SweepsDatabase
         return "Error: failed to find game record";
     }
 
-    public async Task<string> AddRoundScores(int gameID, Dictionary<Player, int> roundScores)
+    public async Task<string> AddRoundScoresAsync(int gameID, Dictionary<Player, int> roundScores)
     {
         if(roundScores.Count < 0)
             return "Error: empty round of scores";
@@ -211,7 +211,7 @@ public class SweepsDatabase
         }
         
         if(gameShouldEnd)
-            await MarkGameCompleted(foundGame.ID);
+            await MarkGameCompletedAsync(foundGame.ID);
 
         return "";
     }
