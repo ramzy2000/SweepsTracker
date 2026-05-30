@@ -132,4 +132,63 @@ public class SweepsDatabase
         }
         return "Error: failed to find game record";
     }
+
+    public async Task<string> AddRoundScores(Game game, Dictionary<Player, int> roundScores)
+    {
+        if(roundScores.Count < 0)
+            return "Error: empty round of scores";
+        
+        // ensure that the players belong to the game session
+        foreach(var entry in roundScores)
+        {
+            Player player = player = entry.Key;
+            if(entry.Key.GameID != game.ID)
+                return "Error: Game ID not matching in player id";
+        }
+
+        // check if round already exists
+        List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == game.ID).ToListAsync();
+        Round? currentRound = null;
+        if(roundsQuery.Count == 0)
+        {
+            // create the round
+            Round round = new Round();
+            round.GameID = game.ID;
+            round.RoundNumber = 1;
+            await database.InsertAsync(round);
+            currentRound = round;
+        }
+        else
+        {
+            // rounds exist
+            // find the highest round
+            int highestRound = 0;
+            foreach(Round round in roundsQuery)
+            {
+                if(highestRound > round.RoundNumber)
+                {
+                    highestRound = round.RoundNumber;
+                }
+            }
+
+            // create the new round
+            Round newRound = new Round();
+            newRound.GameID = game.ID;
+            newRound.RoundNumber = highestRound + 1;
+            await database.InsertAsync(newRound);
+            currentRound = newRound;
+        }
+
+        // add round scores
+        foreach(KeyValuePair<Player, int> entry in roundScores)
+        {
+            RoundScore roundScore = new RoundScore();
+            roundScore.RoundID = currentRound.ID;
+            roundScore.PlayerID = entry.Key.ID;
+            roundScore.Score = entry.Value;
+            await database.InsertAsync(roundScore);
+        }
+
+        return "";
+    }
 }
