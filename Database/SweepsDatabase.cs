@@ -13,6 +13,7 @@ public class SweepsDatabase
         database.CreateTableAsync<Player>().Wait();
         database.CreateTableAsync<Round>().Wait();
         database.CreateTableAsync<RoundScore>().Wait();
+        Console.WriteLine($"database is stored at {Constants.DatabasePath}");
     }
 
     public async Task<bool> CreateNewGame(Game game, List<Player> players)
