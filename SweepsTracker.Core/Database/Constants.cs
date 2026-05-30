@@ -1,3 +1,6 @@
+namespace SweepsTracker.Core;
+
+
 public static class Constants
 {
     public const string DatabaseFilename = "sweeps.db3";

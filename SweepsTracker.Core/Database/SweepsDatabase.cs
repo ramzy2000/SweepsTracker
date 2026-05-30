@@ -7,19 +7,30 @@ public class SweepsDatabase
 
     public SweepsDatabase()
     {
-        if (database is not null)
+        OpenAsync().Wait();
+    }
+
+    public async Task OpenAsync()
+    {
+         if (database is not null)
             return;
 
         database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-        database.CreateTableAsync<Game>().Wait();
-        database.CreateTableAsync<Player>().Wait();
-        database.CreateTableAsync<Round>().Wait();
-        database.CreateTableAsync<RoundScore>().Wait();
+        await database.CreateTableAsync<Game>();
+        await database.CreateTableAsync<Player>();
+        await database.CreateTableAsync<Round>();
+        await database.CreateTableAsync<RoundScore>();
         Console.WriteLine($"database is stored at {Constants.DatabasePath}");
+    }
+
+    public async Task CloseAsync()
+    {
+        await database.CloseAsync();
     }
 
     public async Task<bool> CreateNewGame(Game game, List<Player> players)
     {
+        await OpenAsync();
         // create the game record
         int createGame = await database.InsertAsync(game);
 

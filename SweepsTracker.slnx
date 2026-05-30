@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="SweepsTracker.Core/SweepsTracker.Core.csproj" />
+  <Project Path="SweepsTracker.Test/SweepsTracker.Test.csproj" />
+  <Project Path="SweepsTracker/SweepsTracker.csproj" />
+</Solution>
