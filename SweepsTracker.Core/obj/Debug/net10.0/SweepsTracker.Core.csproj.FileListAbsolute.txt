@@ -1,0 +1,13 @@
+C:\Projects\SweepsTracker\SweepsTracker.Core\bin\Debug\net10.0\SweepsTracker.Core.deps.json
+C:\Projects\SweepsTracker\SweepsTracker.Core\bin\Debug\net10.0\SweepsTracker.Core.dll
+C:\Projects\SweepsTracker\SweepsTracker.Core\bin\Debug\net10.0\SweepsTracker.Core.pdb
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.csproj.AssemblyReference.cache
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.GeneratedMSBuildEditorConfig.editorconfig
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.AssemblyInfoInputs.cache
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.AssemblyInfo.cs
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.csproj.CoreCompileInputs.cache
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.sourcelink.json
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.dll
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\refint\SweepsTracker.Core.dll
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\SweepsTracker.Core.pdb
+C:\Projects\SweepsTracker\SweepsTracker.Core\obj\Debug\net10.0\ref\SweepsTracker.Core.dll
