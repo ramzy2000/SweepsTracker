@@ -12,5 +12,4 @@ public class Game
     public string StartDate { get; set; }
 
     public string EndDate { get; set; }
-    public int WinnerPlayerID { get; set; }
 }
