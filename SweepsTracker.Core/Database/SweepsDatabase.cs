@@ -133,7 +133,7 @@ public class SweepsDatabase
         return "Error: failed to find game record";
     }
 
-    public async Task<string> AddRoundScores(Game game, Dictionary<Player, int> roundScores)
+    public async Task<string> AddRoundScores(int gameID, Dictionary<Player, int> roundScores)
     {
         if(roundScores.Count < 0)
             return "Error: empty round of scores";
@@ -142,18 +142,27 @@ public class SweepsDatabase
         foreach(var entry in roundScores)
         {
             Player player = player = entry.Key;
-            if(entry.Key.GameID != game.ID)
+            if(entry.Key.GameID != gameID)
                 return "Error: Game ID not matching in player id";
         }
 
+        await OpenAsync();
+
+        // check if the game is finished
+        Game? foundGame = await database.FindAsync<Game>(gameID);
+        if(foundGame.EndDate != null)
+            return "Error: Game is finished cannot add any more rounds";
+        if(foundGame == null)
+            return "Error: Cannot find game id";
+
         // check if round already exists
-        List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == game.ID).ToListAsync();
+        List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == foundGame.ID).ToListAsync();
         Round? currentRound = null;
         if(roundsQuery.Count == 0)
         {
             // create the round
             Round round = new Round();
-            round.GameID = game.ID;
+            round.GameID = foundGame.ID;
             round.RoundNumber = 1;
             await database.InsertAsync(round);
             currentRound = round;
@@ -165,7 +174,7 @@ public class SweepsDatabase
             int highestRound = 0;
             foreach(Round round in roundsQuery)
             {
-                if(highestRound > round.RoundNumber)
+                if(round.RoundNumber > highestRound)
                 {
                     highestRound = round.RoundNumber;
                 }
@@ -173,21 +182,36 @@ public class SweepsDatabase
 
             // create the new round
             Round newRound = new Round();
-            newRound.GameID = game.ID;
+            newRound.GameID = foundGame.ID;
             newRound.RoundNumber = highestRound + 1;
             await database.InsertAsync(newRound);
             currentRound = newRound;
         }
 
+        bool gameShouldEnd = false;
         // add round scores
         foreach(KeyValuePair<Player, int> entry in roundScores)
         {
+            // update round score
             RoundScore roundScore = new RoundScore();
             roundScore.RoundID = currentRound.ID;
             roundScore.PlayerID = entry.Key.ID;
             roundScore.Score = entry.Value;
             await database.InsertAsync(roundScore);
+
+            // update player total score
+            entry.Key.TotalScore += roundScore.Score;
+            await database.UpdateAsync(entry.Key);
+
+            // check if player has won
+            if(entry.Key.TotalScore >= foundGame.MaxScore)
+            {
+                gameShouldEnd = true;
+            }
         }
+        
+        if(gameShouldEnd)
+            await MarkGameCompleted(foundGame.ID);
 
         return "";
     }
