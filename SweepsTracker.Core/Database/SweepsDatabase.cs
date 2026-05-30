@@ -223,4 +223,12 @@ public class SweepsDatabase
         List<Game> activeGames = await database.Table<Game>().Where(g => g.EndDate == null).ToListAsync();
         return activeGames;
     }
+
+    public async Task<List<Game>> GetHistoricalGamesAsync()
+    {
+        await OpenAsync();
+
+        List<Game> historicalGames = await database.Table<Game>().Where(g => g.EndDate != null).ToListAsync();
+        return historicalGames;
+    }
 }

@@ -6,7 +6,7 @@ using SweepsTracker.Core;
 public class Database
 {
     [Fact]
-    public async Task TestCreateNewGame()
+    public async Task TestCreateNewGameAsync()
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
@@ -29,7 +29,7 @@ public class Database
     }
 
     [Fact]
-    public async Task TestMarkGameCompleted()
+    public async Task TestMarkGameCompletedAsync()
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
@@ -55,7 +55,7 @@ public class Database
     }
 
     [Fact]
-    public async Task TestMarkGameCompletedNoMaxScore()
+    public async Task TestMarkGameCompletedNoMaxScoreAsync()
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
@@ -78,7 +78,7 @@ public class Database
     }
 
     [Fact]
-    public async Task TestMarkAddRoundScores()
+    public async Task TestMarkAddRoundScoresAsync()
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
@@ -109,7 +109,7 @@ public class Database
     }
 
     [Fact]
-    public async Task TestMarkAddRoundScoresWinners()
+    public async Task TestMarkAddRoundScoresWinnersAsync()
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
@@ -166,15 +166,66 @@ public class Database
         // create two games
         bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
 
-        await sweepsDatabase.CreateNewGameAsync(game, players); 
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
-        List<Game> activeGames =  await sweepsDatabase.GetActiveGamesAsync();
-        foreach(Game activeGame in activeGames)
+        List<Game> activeGames = await sweepsDatabase.GetActiveGamesAsync();
+        foreach (Game activeGame in activeGames)
         {
             Assert.True(activeGame.EndDate == null); // make sure no games are historical
         }
 
-        Assert.True(activeGames.Count() == 2);
+        Assert.Equal(2, activeGames.Count());
+
+        await sweepsDatabase.CloseAsync();
+        FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
+    }
+
+    [Fact]
+    public async Task TestGetHistoricalGamesAsync()
+    {
+        SweepsDatabase sweepsDatabase = new SweepsDatabase();
+
+        for (int i = 0; i < 2; i++)
+        {
+            Game game = new Game();
+            game.Name = "My Game";
+            game.MaxScore = 150;
+
+            Player player = new Player();
+            player.Name = "Casey";
+
+            Player player1 = new Player();
+            player1.Name = "Justine";
+
+            List<Player> players = new List<Player>();
+            players.Add(player);
+            players.Add(player1);
+            bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+
+            // add some score
+
+            Dictionary<Player, int> roundScores = new Dictionary<Player, int>();
+            roundScores.Add(player, 30);
+            roundScores.Add(player1, 50);
+
+            await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+            await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+            await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+            await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores); // should fail and game should be over
+        }
+
+        // get historical games
+        List<Game> historicalGames = await sweepsDatabase.GetHistoricalGamesAsync();
+
+        foreach(Game historicalGame in historicalGames)
+        {
+            Assert.True(historicalGame.EndDate != null);
+        }
+
+        Assert.Equal(2, historicalGames.Count());
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
