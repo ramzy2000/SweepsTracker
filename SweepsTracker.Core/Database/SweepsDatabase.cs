@@ -30,7 +30,14 @@ public class SweepsDatabase
 
     public async Task<bool> CreateNewGame(Game game, List<Player> players)
     {
+        if(game.MaxScore < 150 || game.MaxScore > 500)
+            return false;
+
         await OpenAsync();
+        // date time record
+        DateTime dateTime = DateTime.Now;
+        game.StartDate = dateTime.ToString();
+
         // create the game record
         int createGame = await database.InsertAsync(game);
 
@@ -46,6 +53,24 @@ public class SweepsDatabase
         if(createGame > 0 && createdPlayer > 0)
         {
             return true;
+        }
+        return false;
+    }
+
+    public async Task<bool> MarkGameCompleted(int gameID)
+    {
+        await OpenAsync();
+        // get the selected game
+        var gameQuery = database.Table<Game>().Where(g => g.ID == gameID);
+
+        bool isFound = await gameQuery.CountAsync() > 0;
+        
+        if(gameQuery != null && isFound)
+        {
+            Game game = await gameQuery.FirstAsync();
+
+            game.EndDate = DateTime.Now.ToString();
+            return await database.UpdateAsync(game) > 0;
         }
         return false;
     }
