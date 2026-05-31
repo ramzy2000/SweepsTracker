@@ -234,6 +234,66 @@ public class SweepsDatabase
 
     public async Task<Game> GetGameFromGameIdAsync(int gameID)
     {
+        await OpenAsync();
         return await database.FindAsync<Game>(gameID);
+    }
+
+    public async Task<ActiveGameInfo?> GetActiveGameInfoAsync(int gameID)
+    {
+        Game game = await GetGameFromGameIdAsync(gameID);
+        if(game == null)
+            return null;
+
+        await OpenAsync();
+
+        ActiveGameInfo activeGameInfo = new ActiveGameInfo();
+        activeGameInfo.GameName = game.Name;
+        
+        List<Player> players = await database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
+        List<Round> rounds = await database.Table<Round>().Where(r => r.GameID == gameID).ToListAsync();
+
+        // sort the rounds
+        bool swapped;
+        for(int i = 0; i < rounds.Count() - 1; i++)
+        {
+            swapped = false;
+            Round temp;
+            for(int j = 0; j < rounds.Count() - i - 1; j++)
+            {
+                if (rounds[j].RoundNumber > rounds[j + 1].RoundNumber) {
+                    
+                    temp = rounds[j];
+                    rounds[j] = rounds[j + 1];
+                    rounds[j + 1] = temp;
+                    swapped = true;
+                }
+
+                if (swapped == false)
+                    break;
+            }
+        }
+
+        // get player names
+        foreach(Player player in players)
+        {
+            activeGameInfo.PlayerNames.Add(player.Name);
+        }
+
+        // get a list of round scores
+        foreach(Round round in rounds)
+        {
+            RoundInfo roundInfo = new RoundInfo();
+            roundInfo.RoundNumber = round.RoundNumber;
+            foreach(Player player in players)
+            {
+                List<RoundScore> roundScores = await database.Table<RoundScore>().Where(rs => rs.RoundID == round.ID && rs.PlayerID == player.ID).ToListAsync();
+                RoundScore roundScore = roundScores[0];
+
+                roundInfo.RoundScores.Add(roundScore.Score);
+            }
+            activeGameInfo.RoundInfos.Add(roundInfo);
+        }
+        
+        return activeGameInfo;
     }
 }
