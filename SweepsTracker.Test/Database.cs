@@ -220,12 +220,43 @@ public class Database
         // get historical games
         List<Game> historicalGames = await sweepsDatabase.GetHistoricalGamesAsync();
 
-        foreach(Game historicalGame in historicalGames)
+        foreach (Game historicalGame in historicalGames)
         {
             Assert.True(historicalGame.EndDate != null);
         }
 
         Assert.Equal(2, historicalGames.Count());
+
+        await sweepsDatabase.CloseAsync();
+        FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
+    }
+
+    [Fact]
+    public async Task TestGetGameFromGameIdAsync()
+    {
+        SweepsDatabase sweepsDatabase = new SweepsDatabase();
+
+        Game game = new Game();
+        game.Name = "My Game";
+        game.MaxScore = 150;
+
+        Player player = new Player();
+        player.Name = "Casey";
+
+        Player player1 = new Player();
+        player1.Name = "Justine";
+
+        List<Player> players = new List<Player>();
+        players.Add(player);
+        players.Add(player1);
+        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+
+        // test the method
+        Game testGameObject = await sweepsDatabase.GetGameFromGameIdAsync(1);
+        Assert.True(testGameObject != null);
+
+        Game testGameObject2 = await sweepsDatabase.GetGameFromGameIdAsync(2);
+        Assert.True(testGameObject2 == null);
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);

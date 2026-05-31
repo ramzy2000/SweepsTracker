@@ -231,4 +231,9 @@ public class SweepsDatabase
         List<Game> historicalGames = await database.Table<Game>().Where(g => g.EndDate != null).ToListAsync();
         return historicalGames;
     }
+
+    public async Task<Game> GetGameFromGameIdAsync(int gameID)
+    {
+        return await database.FindAsync<Game>(gameID);
+    }
 }
