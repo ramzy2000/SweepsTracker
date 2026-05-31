@@ -277,6 +277,7 @@ public class SweepsDatabase
         foreach(Player player in players)
         {
             activeGameInfo.PlayerNames.Add(player.Name);
+            activeGameInfo.PlayerScoreTotals.Add(player.TotalScore);
         }
 
         // get a list of round scores
