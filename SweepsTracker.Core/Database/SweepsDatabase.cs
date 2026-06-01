@@ -279,7 +279,7 @@ public class SweepsDatabase
             gameInfo.Info.Add(player, new List<int>());
         }
 
-        // get a list of round scores
+        // get a list of round scores per player
         foreach(Round round in rounds)
         {
             foreach(var entry in gameInfo.Info)
