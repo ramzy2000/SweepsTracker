@@ -150,10 +150,10 @@ public class SweepsDatabase
 
         // check if the game is finished
         Game? foundGame = await database.FindAsync<Game>(gameID);
-        if(foundGame.EndDate != null)
-            return "Error: Game is finished cannot add any more rounds";
         if(foundGame == null)
             return "Error: Cannot find game id";
+        if(foundGame.EndDate != null)
+            return "Error: Game is finished cannot add any more rounds";
 
         // check if round already exists
         List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == foundGame.ID).ToListAsync();
