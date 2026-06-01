@@ -288,6 +288,15 @@ public class SweepsDatabase
                 entry.Value.Add(roundScores[0].Score);
             }
         }
+
+        // get a list of the winning players
+        List<Winner> winners = await database.Table<Winner>().Where(winner => winner.GameID == game.ID).ToListAsync();
+
+        foreach(Winner winner in winners)
+        {
+            Player player = await database.FindAsync<Player>(winner.PlayerWinnerID);
+            gameInfo.WinningPlayers.Add(player);
+        }
         
         return gameInfo;
     }
