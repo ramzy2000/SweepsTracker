@@ -22,9 +22,10 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        Game? successGameObject = await sweepsDatabase.CreateNewGameAsync(game, players);
+        Assert.False(successGameObject == null);
+        Assert.False(successGameObject.ID == 0);
         await sweepsDatabase.CloseAsync();
-        Assert.True(success);
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
     }
 
@@ -46,7 +47,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
         Assert.True(await sweepsDatabase.MarkGameCompletedAsync(1) == ""); // mark existing game completed
 
         Assert.False(await sweepsDatabase.MarkGameCompletedAsync(5) == ""); // try mark non existant game completed
@@ -71,7 +72,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
         Assert.False(await sweepsDatabase.MarkGameCompletedAsync(1) == ""); // mark existing game completed
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
@@ -94,7 +95,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
         // add some score
 
@@ -125,7 +126,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
         // add some score
 
@@ -164,7 +165,7 @@ public class Database
         players.Add(player1);
 
         // create two games
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
         await sweepsDatabase.CreateNewGameAsync(game, players);
 
@@ -200,7 +201,7 @@ public class Database
             List<Player> players = new List<Player>();
             players.Add(player);
             players.Add(player1);
-            bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+            await sweepsDatabase.CreateNewGameAsync(game, players);
 
             // add some score
 
@@ -249,7 +250,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
         // test the method
         Game testGameObject = await sweepsDatabase.GetGameFromGameIdAsync(1);
@@ -280,7 +281,7 @@ public class Database
         List<Player> players = new List<Player>();
         players.Add(player);
         players.Add(player1);
-        bool success = await sweepsDatabase.CreateNewGameAsync(game, players);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
 
         Dictionary<Player, int> roundScores = new Dictionary<Player, int>();
         roundScores.Add(player, 30);

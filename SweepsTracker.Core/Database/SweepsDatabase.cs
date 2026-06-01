@@ -30,10 +30,10 @@ public class SweepsDatabase
         await database.CloseAsync();
     }
 
-    public async Task<bool> CreateNewGameAsync(Game game, List<Player> players)
+    public async Task<Game?> CreateNewGameAsync(Game game, List<Player> players)
     {
         if(game.MaxScore < 150 || game.MaxScore > 500)
-            return false;
+            return null;
 
         await OpenAsync();
         // date time record
@@ -54,9 +54,9 @@ public class SweepsDatabase
 
         if(createGame > 0 && createdPlayer > 0)
         {
-            return true;
+            return game;
         }
-        return false;
+        return null;
     }
 
     public async Task<string> MarkGameCompletedAsync(int gameID)
