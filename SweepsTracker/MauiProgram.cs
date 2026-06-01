@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using SweepsTracker.Core;
 
 namespace SweepsTracker;
 
@@ -7,6 +8,8 @@ public static class MauiProgram
 	public static MauiApp CreateMauiApp()
 	{
 		var builder = MauiApp.CreateBuilder();
+		Constants.DatabasePath = FileSystem.AppDataDirectory+"/"+Constants.DatabaseFilename;
+		builder.Services.AddSingleton<SweepsDatabase>();
 		builder
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
