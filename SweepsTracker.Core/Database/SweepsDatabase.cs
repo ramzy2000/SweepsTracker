@@ -238,7 +238,7 @@ public class SweepsDatabase
         return await database.FindAsync<Game>(gameID);
     }
 
-    public async Task<ActiveGameInfo?> GetActiveGameInfoAsync(int gameID)
+    public async Task<GameInfo?> GetGameInfoAsync(int gameID)
     {
         Game game = await GetGameFromGameIdAsync(gameID);
         if(game == null)
@@ -246,8 +246,8 @@ public class SweepsDatabase
 
         await OpenAsync();
 
-        ActiveGameInfo activeGameInfo = new ActiveGameInfo();
-        activeGameInfo.GameName = game.Name;
+        GameInfo gameInfo = new GameInfo();
+        gameInfo.Game = game;
         
         List<Player> players = await database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
         List<Round> rounds = await database.Table<Round>().Where(r => r.GameID == gameID).ToListAsync();
@@ -276,25 +276,19 @@ public class SweepsDatabase
         // get player names
         foreach(Player player in players)
         {
-            activeGameInfo.PlayerNames.Add(player.Name);
-            activeGameInfo.PlayerScoreTotals.Add(player.TotalScore);
+            gameInfo.Info.Add(player, new List<int>());
         }
 
         // get a list of round scores
         foreach(Round round in rounds)
         {
-            RoundInfo roundInfo = new RoundInfo();
-            roundInfo.RoundNumber = round.RoundNumber;
-            foreach(Player player in players)
+            foreach(var entry in gameInfo.Info)
             {
-                List<RoundScore> roundScores = await database.Table<RoundScore>().Where(rs => rs.RoundID == round.ID && rs.PlayerID == player.ID).ToListAsync();
-                RoundScore roundScore = roundScores[0];
-
-                roundInfo.RoundScores.Add(roundScore.Score);
+                List<RoundScore> roundScores = await database.Table<RoundScore>().Where(rs => rs.RoundID == round.ID && rs.PlayerID == entry.Key.ID).ToListAsync();
+                entry.Value.Add(roundScores[0].Score);
             }
-            activeGameInfo.RoundInfos.Add(roundInfo);
         }
         
-        return activeGameInfo;
+        return gameInfo;
     }
 }
