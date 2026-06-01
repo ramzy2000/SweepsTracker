@@ -133,17 +133,17 @@ public class SweepsDatabase
         return "Error: failed to find game record";
     }
 
-    public async Task<string> AddRoundScoresAsync(int gameID, Dictionary<Player, int> roundScores)
+    public async Task<Game?> AddRoundScoresAsync(int gameID, Dictionary<Player, int> roundScores)
     {
         if(roundScores.Count < 0)
-            return "Error: empty round of scores";
+            return null;
         
         // ensure that the players belong to the game session
         foreach(var entry in roundScores)
         {
             Player player = player = entry.Key;
             if(entry.Key.GameID != gameID)
-                return "Error: Game ID not matching in player id";
+                return null;
         }
 
         await OpenAsync();
@@ -151,9 +151,9 @@ public class SweepsDatabase
         // check if the game is finished
         Game? foundGame = await database.FindAsync<Game>(gameID);
         if(foundGame == null)
-            return "Error: Cannot find game id";
+            return null;
         if(foundGame.EndDate != null)
-            return "Error: Game is finished cannot add any more rounds";
+            return null;
 
         // check if round already exists
         List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == foundGame.ID).ToListAsync();
@@ -213,7 +213,7 @@ public class SweepsDatabase
         if(gameShouldEnd)
             await MarkGameCompletedAsync(foundGame.ID);
 
-        return "";
+        return await GetGameFromGameIdAsync(foundGame.ID);
     }
 
     public async Task<List<Game>> GetActiveGamesAsync()

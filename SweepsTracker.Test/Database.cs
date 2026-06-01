@@ -103,7 +103,7 @@ public class Database
         roundScores.Add(player, 30);
         roundScores.Add(player1, 50);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
+        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == null);
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
@@ -134,13 +134,13 @@ public class Database
         roundScores.Add(player, 30);
         roundScores.Add(player1, 50);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
+        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == null);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
+        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == null);
 
-        Assert.Equal("", await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores));
+        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == null);
 
-        Assert.False(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == ""); // should fail and game should be over
+        Assert.True(await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores) == null); // should fail and game should be over
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
