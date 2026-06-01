@@ -273,7 +273,7 @@ public class SweepsDatabase
             }
         }
 
-        // get player names
+        // store player objects
         foreach(Player player in players)
         {
             gameInfo.Info.Add(player, new List<int>());
