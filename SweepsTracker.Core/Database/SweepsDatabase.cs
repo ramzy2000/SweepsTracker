@@ -4,11 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using SQLite;
 public class SweepsDatabase
 {
-    SQLiteAsyncConnection database;
+    SQLiteAsyncConnection? database;
+    private SQLiteAsyncConnection Database => database ?? throw new InvalidOperationException("Database has not been initialized. Call OpenAsync first.");
 
     public SweepsDatabase()
     {
-        OpenAsync().Wait();
+        // Avoid blocking in the constructor; initialize lazily on first use.
     }
 
     public async Task OpenAsync()
@@ -16,18 +17,22 @@ public class SweepsDatabase
          if (database is not null)
             return;
 
-        database = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
-        await database.CreateTableAsync<Game>();
-        await database.CreateTableAsync<Player>();
-        await database.CreateTableAsync<Round>();
-        await database.CreateTableAsync<RoundScore>();
-        await database.CreateTableAsync<Winner>();
+        var connection = new SQLiteAsyncConnection(Constants.DatabasePath, Constants.Flags);
+        await connection.CreateTableAsync<Game>();
+        await connection.CreateTableAsync<Player>();
+        await connection.CreateTableAsync<Round>();
+        await connection.CreateTableAsync<RoundScore>();
+        await connection.CreateTableAsync<Winner>();
+        database = connection;
         Console.WriteLine($"database is stored at {Constants.DatabasePath}");
     }
 
     public async Task CloseAsync()
     {
-        await database.CloseAsync();
+        if (database is not null)
+        {
+            await database.CloseAsync();
+        }
     }
 
     public async Task<Game?> CreateNewGameAsync(Game game, List<Player> players)
@@ -41,7 +46,7 @@ public class SweepsDatabase
         game.StartDate = dateTime.ToString();
 
         // create the game record
-        int createGame = await database.InsertAsync(game);
+        int createGame = await Database.InsertAsync(game);
 
         // set player GameID to the created game ID
         for(int i = 0; i < players.Count(); i++)
@@ -50,7 +55,7 @@ public class SweepsDatabase
         }
         
         // create player records
-        int createdPlayer = await database.InsertAllAsync(players);
+        int createdPlayer = await Database.InsertAllAsync(players);
 
         if(createGame > 0 && createdPlayer > 0)
         {
@@ -63,13 +68,13 @@ public class SweepsDatabase
     {
         await OpenAsync();
         // get the selected game
-        Game? game = await database.FindAsync<Game>(gameID);
+        Game? game = await Database.FindAsync<Game>(gameID);
         
         if(game != null)
         {
 
             // get a list of all the players in game
-            List<Player> players = await database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
+            List<Player> players = await Database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
             Player lowestScorePlayer = players[0];
 
             // check if the players have met the max score at least on of them
@@ -120,11 +125,11 @@ public class SweepsDatabase
             }
 
             // create the winner records
-            await database.InsertAllAsync(winners);
+            await Database.InsertAllAsync(winners);
 
             // set the end date
             game.EndDate = DateTime.Now.ToString();
-            bool success = await database.UpdateAsync(game) > 0;
+            bool success = await Database.UpdateAsync(game) > 0;
             if(success)
                 return "";
             else
@@ -149,14 +154,14 @@ public class SweepsDatabase
         await OpenAsync();
 
         // check if the game is finished
-        Game? foundGame = await database.FindAsync<Game>(gameID);
+        Game? foundGame = await Database.FindAsync<Game>(gameID);
         if(foundGame == null)
             return null;
         if(foundGame.EndDate != null)
             return null;
 
         // check if round already exists
-        List<Round> roundsQuery = await database.Table<Round>().Where(r => r.GameID == foundGame.ID).ToListAsync();
+        List<Round> roundsQuery = await Database.Table<Round>().Where(r => r.GameID == foundGame.ID).ToListAsync();
         Round? currentRound = null;
         if(roundsQuery.Count == 0)
         {
@@ -164,7 +169,7 @@ public class SweepsDatabase
             Round round = new Round();
             round.GameID = foundGame.ID;
             round.RoundNumber = 1;
-            await database.InsertAsync(round);
+            await Database.InsertAsync(round);
             currentRound = round;
         }
         else
@@ -184,7 +189,7 @@ public class SweepsDatabase
             Round newRound = new Round();
             newRound.GameID = foundGame.ID;
             newRound.RoundNumber = highestRound + 1;
-            await database.InsertAsync(newRound);
+            await Database.InsertAsync(newRound);
             currentRound = newRound;
         }
 
@@ -197,11 +202,11 @@ public class SweepsDatabase
             roundScore.RoundID = currentRound.ID;
             roundScore.PlayerID = entry.Key.ID;
             roundScore.Score = entry.Value;
-            await database.InsertAsync(roundScore);
+            await Database.InsertAsync(roundScore);
 
             // update player total score
             entry.Key.TotalScore += roundScore.Score;
-            await database.UpdateAsync(entry.Key);
+            await Database.UpdateAsync(entry.Key);
 
             // check if player has won
             if(entry.Key.TotalScore >= foundGame.MaxScore)
@@ -220,7 +225,7 @@ public class SweepsDatabase
     {
         await OpenAsync();
 
-        List<Game> activeGames = await database.Table<Game>().Where(g => g.EndDate == null).ToListAsync();
+        List<Game> activeGames = await Database.Table<Game>().Where(g => g.EndDate == null).ToListAsync();
         return activeGames;
     }
 
@@ -228,14 +233,14 @@ public class SweepsDatabase
     {
         await OpenAsync();
 
-        List<Game> historicalGames = await database.Table<Game>().Where(g => g.EndDate != null).ToListAsync();
+        List<Game> historicalGames = await Database.Table<Game>().Where(g => g.EndDate != null).ToListAsync();
         return historicalGames;
     }
 
     public async Task<Game> GetGameFromGameIdAsync(int gameID)
     {
         await OpenAsync();
-        return await database.FindAsync<Game>(gameID);
+        return await Database.FindAsync<Game>(gameID);
     }
 
     public async Task<GameInfo?> GetGameInfoAsync(int gameID)
@@ -249,8 +254,8 @@ public class SweepsDatabase
         GameInfo gameInfo = new GameInfo();
         gameInfo.Game = game;
         
-        List<Player> players = await database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
-        List<Round> rounds = await database.Table<Round>().Where(r => r.GameID == gameID).ToListAsync();
+        List<Player> players = await Database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
+        List<Round> rounds = await Database.Table<Round>().Where(r => r.GameID == gameID).ToListAsync();
 
         // sort the rounds
         bool swapped;
@@ -284,17 +289,17 @@ public class SweepsDatabase
         {
             foreach(var entry in gameInfo.Info)
             {
-                List<RoundScore> roundScores = await database.Table<RoundScore>().Where(rs => rs.RoundID == round.ID && rs.PlayerID == entry.Key.ID).ToListAsync();
+                List<RoundScore> roundScores = await Database.Table<RoundScore>().Where(rs => rs.RoundID == round.ID && rs.PlayerID == entry.Key.ID).ToListAsync();
                 entry.Value.Add(roundScores[0].Score);
             }
         }
 
         // get a list of the winning players
-        List<Winner> winners = await database.Table<Winner>().Where(winner => winner.GameID == game.ID).ToListAsync();
+        List<Winner> winners = await Database.Table<Winner>().Where(winner => winner.GameID == game.ID).ToListAsync();
 
         foreach(Winner winner in winners)
         {
-            Player player = await database.FindAsync<Player>(winner.PlayerWinnerID);
+            Player player = await Database.FindAsync<Player>(winner.PlayerWinnerID);
             gameInfo.WinningPlayers.Add(player);
         }
         
