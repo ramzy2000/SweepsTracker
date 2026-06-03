@@ -10,7 +10,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -34,7 +33,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -60,7 +58,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -83,7 +80,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -114,7 +110,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -151,7 +146,6 @@ public class Database
     {
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -189,7 +183,6 @@ public class Database
         for (int i = 0; i < 2; i++)
         {
             Game game = new Game();
-            game.Name = "My Game";
             game.MaxScore = 150;
 
             Player player = new Player();
@@ -238,7 +231,6 @@ public class Database
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
 
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -269,7 +261,6 @@ public class Database
         SweepsDatabase sweepsDatabase = new SweepsDatabase();
 
         Game game = new Game();
-        game.Name = "My Game";
         game.MaxScore = 150;
 
         Player player = new Player();
@@ -301,7 +292,6 @@ public class Database
         GameInfo? gameInfo = await sweepsDatabase.GetGameInfoAsync(1);
         Assert.False(gameInfo == null);
 
-        Assert.True(gameInfo.Game.Name == "My Game");
         Assert.True(gameInfo.Info.Count() == 2);
 
         foreach(var entry in gameInfo.Info)
