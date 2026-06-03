@@ -1,6 +1,9 @@
 @page "/new-game"
+@using SweepsTracker.Core
 
-@if (currentStep == 1)
+@inject SweepsDatabase sweepsDatabase
+
+@if(currentStep == 1)
 {
     <section class="new-game-shell">
         <header class="new-game-header">
@@ -11,16 +14,10 @@
         <div class="add-player-card">
             <label class="field-label" for="player-name">Player Name</label>
             <div class="input-row">
-                <input
-                    id="player-name"
-                    @bind="newName"
-                    @bind:event="oninput"
-                    @onkeydown="HandleNameInputKeydown"
-                    class="form-control"
-                    placeholder="Enter a name"
-                    maxlength="32" />
+                <input id="player-name" @bind="name" @bind:event="oninput" @onkeydown="HandleNameInputKeydown"
+                       class="form-control" placeholder="Enter a name" maxlength="32" />
 
-                <button class="btn btn-primary add-button" @onclick="AddName" disabled="@string.IsNullOrWhiteSpace(newName)">
+                <button class="btn btn-primary add-button" @onclick="AddName" disabled="@string.IsNullOrWhiteSpace(name)">
                     <i class="bi bi-plus-lg"></i>
                     Add
                 </button>
@@ -30,10 +27,10 @@
         <div class="players-card">
             <div class="players-card-header">
                 <h2>Players</h2>
-                <span class="count-pill">@names.Count</span>
+                <span class="count-pill">@players.Count</span>
             </div>
 
-            @if (names.Count == 0)
+            @if (players.Count == 0)
             {
                 <div class="empty-state">
                     <i class="bi bi-people"></i>
@@ -43,11 +40,11 @@
             else
             {
                 <ul class="player-list" aria-label="Players added to this game">
-                    @foreach (var name in names)
+                    @foreach (Player player in players)
                     {
                         <li class="player-item">
-                            <span class="player-name">@name</span>
-                            <button class="btn btn-sm btn-danger" @onclick="() => RemoveName(name)" aria-label="Remove @name">
+                            <span class="player-name">@player.Name</span>
+                            <button class="btn btn-sm btn-danger" @onclick="() => RemoveName(player)" aria-label="Remove @player">
                                 <i class="bi bi-trash"></i>
                             </button>
                         </li>
@@ -57,7 +54,8 @@
         </div>
 
         <footer class="actions-row">
-            <button class="btn btn-primary next-button" @onclick="NextButtonClickedNames" disabled="@(names.Count < 2)">Next</button>
+            <button class="btn btn-primary next-button" @onclick="NextButtonClickedNames"
+                    disabled="@(players.Count < 2)">Next</button>
         </footer>
     </section>
 }
@@ -72,14 +70,14 @@ else if (currentStep == 2)
         <div class="players-card setup-review-card">
             <div class="players-card-header">
                 <h2>Players Ready</h2>
-                <span class="count-pill">@names.Count</span>
+                <span class="count-pill">@players.Count</span>
             </div>
 
             <ul class="player-list" aria-label="Players in this game">
-                @foreach (var name in names)
+                @foreach (Player player in players)
                 {
                     <li class="player-item">
-                        <span class="player-name">@name</span>
+                        <span class="player-name">@player.Name</span>
                     </li>
                 }
             </ul>
@@ -87,14 +85,8 @@ else if (currentStep == 2)
 
         <div class="add-player-card max-score-card">
             <label class="field-label" for="max-score">Max Score</label>
-            <input
-                id="max-score"
-                type="number"
-                @bind="maxScore"
-                min="150"
-                max="500"
-                class="form-control score-input"
-                placeholder="Enter max score" />
+            <input id="max-score" type="number" @bind="maxScore" min="150" max="500" class="form-control score-input"
+                   placeholder="Enter max score" />
 
             @if (!string.IsNullOrWhiteSpace(maxScoreValidationMessage))
             {
@@ -104,60 +96,78 @@ else if (currentStep == 2)
 
         <footer class="actions-row two-actions">
             <button class="btn btn-outline-light secondary-action" @onclick="BackToPlayersStep">Back</button>
-            <button class="btn btn-primary next-button" @onclick="CreateNewGame" disabled="@(!CanCreateGame)">Create New Game</button>
-        </footer>
-    </section>
-}
+            <button class="btn btn-primary next-button" @onclick="CreateNewGame" disabled="@(!CanCreateGame)">Create New
+                Game</button>
+            </footer>
+        </section>
+    }
 else
-{
-    <section class="new-game-shell">
-        <header class="new-game-header">
-            <h1>Game Created</h1>
-            <p>Your session is ready to start.</p>
-        </header>
+    {
+        @if (failedToCreate)
+        {
+            <section class="new-game-shell">
+                <header class="new-game-header">
+                    <h1>Failed to create Game</h1>
+                </header>
+            </section>
+        }
+        else
+        {
+            <section class="new-game-shell">
+                <header class="new-game-header">
+                    <h1>Game Created</h1>
+                    <p>Your session is ready to start.</p>
+                </header>
 
-        <div class="players-card setup-review-card">
-            <h2 class="created-title">Game Details</h2>
+                <div class="players-card setup-review-card">
+                    <h2 class="created-title">Game Details</h2>
 
-            <div class="created-detail-row">
-                <span>Players</span>
-                <strong>@names.Count</strong>
-            </div>
-            <div class="created-detail-row">
-                <span>Max Score</span>
-                <strong>@maxScore</strong>
-            </div>
+                    <div class="created-detail-row">
+                        <span>Players</span>
+                        <strong>@players.Count</strong>
+                    </div>
+                    <div class="created-detail-row">
+                        <span>Max Score</span>
+                        <strong>@maxScore</strong>
+                    </div>
 
-            <ul class="player-list" aria-label="Final player list">
-                @foreach (var name in names)
-                {
-                    <li class="player-item">
-                        <span class="player-name">@name</span>
-                    </li>
-                }
-            </ul>
-        </div>
+                    <ul class="player-list" aria-label="Final player list">
+                        @foreach (Player player in players)
+                        {
+                            <li class="player-item">
+                                <span class="player-name">@player.Name</span>
+                            </li>
+                        }
+                    </ul>
+                </div>
 
-        <footer class="actions-row two-actions">
-            <button class="btn btn-outline-light secondary-action" @onclick="StartOver">Start Over</button>
-        </footer>
-    </section>
-}
+                <footer class="actions-row two-actions">
+                    <button class="btn btn-outline-light secondary-action" @onclick="StartOver">Start Over</button>
+                </footer>
+            </section>
+        }
+    }
 
 @code {
+
+    Game game = new Game();
+
+    List<Player> players = new List<Player>();
     private int currentStep = 1;
 
-    private string? newName;
+    bool failedToCreate = false;
+
+    private string? gameName;
+
+    private string? name;
     private int? maxScore;
     private string? maxScoreValidationMessage;
-
-    private List<string> names = new();
 
     private bool CanCreateGame => maxScore.HasValue && maxScore.Value >= 150 && maxScore.Value <= 500;
 
     private void NextButtonClickedNames()
     {
-        if (names.Count > 0)
+        if (players.Count >= 2)
         {
             currentStep = 2;
         }
@@ -165,24 +175,36 @@ else
 
     private void AddName()
     {
-        if (string.IsNullOrWhiteSpace(newName))
+        if (string.IsNullOrWhiteSpace(name))
         {
             return;
         }
 
-        var trimmedName = newName.Trim();
+        Player newPlayer = new Player();
 
-        if (!names.Any(existingName => string.Equals(existingName, trimmedName, StringComparison.OrdinalIgnoreCase)))
+        newPlayer.Name = name.Trim();
+
+        bool nameFound = false;
+        // check if name is already in the players
+        foreach (Player player in players)
         {
-            names.Add(trimmedName);
+            if (player.Name == newPlayer.Name)
+            {
+                nameFound = true;
+            }
         }
 
-        newName = string.Empty;
+        if (!nameFound)
+        {
+            players.Add(newPlayer);
+        }
+
+        name = string.Empty;
     }
 
-    private void RemoveName(string name)
+    private void RemoveName(Player player)
     {
-        names.Remove(name);
+        players.Remove(player);
     }
 
     private void HandleNameInputKeydown(KeyboardEventArgs args)
@@ -199,7 +221,7 @@ else
         maxScoreValidationMessage = null;
     }
 
-    private void CreateNewGame()
+    private async Task CreateNewGame()
     {
         if (!CanCreateGame)
         {
@@ -207,16 +229,35 @@ else
             return;
         }
 
-        maxScoreValidationMessage = null;
+        
+
+        if (maxScore != null)
+        {
+            game.MaxScore = (int)maxScore;
+        }
+
+        
         currentStep = 3;
+        maxScoreValidationMessage = null;
+        // create the game in the database
+        Game? resultGame = await sweepsDatabase.CreateNewGameAsync(game, players);
+        if (resultGame != null)
+        {
+            game = resultGame;
+
+            
+        }
+        else
+        {
+            failedToCreate = true;
+        }
     }
 
     private void StartOver()
     {
         currentStep = 1;
-        newName = string.Empty;
         maxScore = null;
         maxScoreValidationMessage = null;
-        names.Clear();
+        players.Clear();
     }
 }
