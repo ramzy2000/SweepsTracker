@@ -10,6 +10,7 @@ public static class MauiProgram
 		var builder = MauiApp.CreateBuilder();
 		Constants.DatabasePath = FileSystem.AppDataDirectory+"/"+Constants.DatabaseFilename;
 		builder.Services.AddSingleton<SweepsDatabase>();
+		builder.Services.AddSingleton<GameSessionData>();
 		builder
 			.UseMauiApp<App>()
 			.ConfigureFonts(fonts =>
