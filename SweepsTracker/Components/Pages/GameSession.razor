@@ -14,12 +14,12 @@
         <div>
             @if (gameInfo.Info.Count() > 0)
             {
-                <table>
+                <table class="table table-dark table-striped">
                     <thead>
                         <tr>
                             @foreach (KeyValuePair<Player, List<int>> entry in gameInfo.Info)
                             {
-                                <td>@entry.Key.Name</td>
+                                <th th scope="col">@entry.Key.Name</th>
                             }
                         </tr>
                     </thead>
@@ -53,5 +53,6 @@ else
     protected override async Task OnInitializedAsync()
     {
         gameInfo = await sweepsDatabase.GetGameInfoAsync(gameSessionData.currentGameSession.ID);
+
     }
 }
