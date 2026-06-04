@@ -1,0 +1,40 @@
+@page "/active-games"
+
+@using SweepsTracker.Core
+@inject NavigationManager navigationManager
+@inject SweepsDatabase sweepsDatabase
+@inject GameSessionData gameSessionData
+
+<section>
+  @if (activeGames.Count() == 0)
+  {
+    <h1>No Active Games yet</h1>
+  }
+  else
+  {
+    <div class="game-card-layout">
+      @foreach (Game game in activeGames)
+      {
+        <div @onclick="() => GameCardClicked(game)" class="game-card">
+          <p>@game.StartDate</p>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+@code {
+  List<Game> activeGames = new List<Game>();
+
+  public void GameCardClicked(Game game)
+  {
+    gameSessionData.currentGameSession = game;
+    navigationManager.NavigateTo("gamesession");
+  }
+
+  protected override async Task OnInitializedAsync()
+  {
+    activeGames = await sweepsDatabase.GetActiveGamesAsync();
+    Console.WriteLine("Game Count : " + activeGames.Count());
+  }
+}
