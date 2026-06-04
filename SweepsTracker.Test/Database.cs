@@ -302,6 +302,8 @@ public class Database
 
         Assert.True(gameInfo.WinningPlayers.Count() == 1);
 
+        Assert.True(gameInfo.RoundCount == 3);
+
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
     }

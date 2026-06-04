@@ -278,6 +278,8 @@ public class SweepsDatabase
             }
         }
 
+        gameInfo.RoundCount = rounds.Count();
+
         // store player objects
         foreach(Player player in players)
         {
