@@ -3,6 +3,8 @@
 
 @inject SweepsDatabase sweepsDatabase
 
+@inject GameSessionData gameSessionData
+
 @if(currentStep == 1)
 {
     <section class="new-game-shell">
@@ -240,12 +242,10 @@ else
         currentStep = 3;
         maxScoreValidationMessage = null;
         // create the game in the database
-        Game? resultGame = await sweepsDatabase.CreateNewGameAsync(game, players);
-        if (resultGame != null)
+        gameSessionData.currentGameSession = await sweepsDatabase.CreateNewGameAsync(game, players);
+        if (gameSessionData.currentGameSession != null)
         {
-            game = resultGame;
-
-            
+            game = gameSessionData.currentGameSession;
         }
         else
         {
