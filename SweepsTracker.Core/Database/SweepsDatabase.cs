@@ -1,7 +1,9 @@
 namespace SweepsTracker.Core;
 
-using System.ComponentModel.DataAnnotations;
 using SQLite;
+using System.ComponentModel.DataAnnotations;
+using System.Numerics;
+using System.Reflection.PortableExecutable;
 public class SweepsDatabase
 {
     SQLiteAsyncConnection? database;
@@ -306,5 +308,77 @@ public class SweepsDatabase
         }
         
         return gameInfo;
+    }
+
+    public async Task<GameDisplayTable?> GetGameDisplayTable(int gameID)
+    {
+        Game game = await GetGameFromGameIdAsync(gameID);
+        if (game == null)
+            return null;
+
+        await OpenAsync();
+
+        GameDisplayTable gameDisplay = new GameDisplayTable();
+        gameDisplay.Game = game;
+
+        List<Player> players = await Database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
+        List<Round> rounds = await Database.Table<Round>().Where(r => r.GameID == gameID).ToListAsync();
+
+        // sort the rounds
+        bool swapped;
+        for (int i = 0; i < rounds.Count() - 1; i++)
+        {
+            swapped = false;
+            Round temp;
+            for (int j = 0; j < rounds.Count() - i - 1; j++)
+            {
+                if (rounds[j].RoundNumber > rounds[j + 1].RoundNumber)
+                {
+
+                    temp = rounds[j];
+                    rounds[j] = rounds[j + 1];
+                    rounds[j + 1] = temp;
+                    swapped = true;
+                }
+
+                if (swapped == false)
+                    break;
+            }
+        }
+
+        gameDisplay.RoundCount = rounds.Count();
+
+        // store player objects
+        foreach (Player player in players)
+        {
+            gameDisplay.names.Add(player.Name);
+        }
+
+        for(int i = 0; i < rounds.Count(); i++)
+        {
+            gameDisplay.displayScores.Add(new List<int>());
+        }
+
+        for(int i = 0; i < rounds.Count(); i++)
+        {
+            for (int j = 0; j < players.Count(); j++)
+            {
+                int roundId = rounds[i].ID;
+                int playerId = players[j].ID;
+                List<RoundScore> roundScores = await Database.Table<RoundScore>().Where(rs => rs.RoundID == roundId && rs.PlayerID == playerId).ToListAsync();
+                gameDisplay.displayScores[i].Add(roundScores[0].Score);
+            }
+        }
+
+        // get a list of the winning players
+        List<Winner> winners = await Database.Table<Winner>().Where(winner => winner.GameID == game.ID).ToListAsync();
+
+        foreach (Winner winner in winners)
+        {
+            Player player = await Database.FindAsync<Player>(winner.PlayerWinnerID);
+            gameDisplay.WinningPlayers.Add(player);
+        }
+
+        return gameDisplay;
     }
 }
