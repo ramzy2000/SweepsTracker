@@ -3,6 +3,7 @@
 using Microsoft.VisualBasic;
 using SweepsTracker.Core;
 
+[CollectionDefinition("Sequential", DisableParallelization = true)]
 public class Database
 {
     [Fact]
@@ -303,6 +304,99 @@ public class Database
         Assert.True(gameInfo.WinningPlayers.Count() == 1);
 
         Assert.True(gameInfo.RoundCount == 3);
+
+        Player winningPlayer = gameInfo.WinningPlayers[0];
+
+        Assert.Equal(player.ID, winningPlayer.ID);
+
+        await sweepsDatabase.CloseAsync();
+        FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
+    }
+
+    [Fact]
+    public async Task TestGetGameDisplayTable()
+    {
+        SweepsDatabase sweepsDatabase = new SweepsDatabase();
+
+        Game game = new Game();
+        game.MaxScore = 150;
+
+        Player player = new Player();
+        player.Name = "Casey";
+
+        Player player1 = new Player();
+        player1.Name = "Justine";
+
+        List<Player> players = new List<Player>();
+        players.Add(player);
+        players.Add(player1);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
+
+        Dictionary<Player, int> roundScores = new Dictionary<Player, int>();
+        roundScores.Add(player, 30);
+        roundScores.Add(player1, 50);
+
+        await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+        await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+        await sweepsDatabase.AddRoundScoresAsync(game.ID, roundScores);
+
+        // test the method
+        Game testGameObject = await sweepsDatabase.GetGameFromGameIdAsync(1);
+
+
+        // test the DTO
+        GameDisplayTable? gameDisplayTable = await sweepsDatabase.GetGameDisplayTable(1);
+        Assert.False(gameDisplayTable == null);
+
+        Console.WriteLine(gameDisplayTable.names);
+
+        Assert.True(gameDisplayTable.names.Count() == 2);
+
+        for(int i = 0; i < gameDisplayTable.names.Count(); i++)
+        {
+            if(i == 0)
+            {
+                Assert.Equal("Casey", gameDisplayTable.names[i]);
+            }
+            else if(i == 1)
+            {
+                Assert.Equal("Justine", gameDisplayTable.names[i]);
+            }
+        }
+
+        List<int> expectedRow1 = new List<int>();
+        expectedRow1.Add(30);
+        expectedRow1.Add(50);
+
+        List<int> expectedRow2 = new List<int>();
+        expectedRow2.Add(30);
+        expectedRow2.Add(50);
+
+        Assert.True(gameDisplayTable.displayScores.Count() == 3);
+
+        int index = 0;
+        foreach(List<int> scoreRow in gameDisplayTable.displayScores)
+        {
+            if(index == 0)
+            {
+                Assert.Equal(expectedRow1, scoreRow);
+            }
+            else if(index == 1)
+            {
+                Assert.Equal(expectedRow2, scoreRow);
+            }
+            index++;
+        }
+
+        Assert.True(gameDisplayTable.WinningPlayers.Count() == 1);
+
+        Assert.True(gameDisplayTable.RoundCount == 3);
+
+        Player winningPlayer = gameDisplayTable.WinningPlayers[0];
+
+        Assert.Equal(player.ID, winningPlayer.ID);
 
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
