@@ -4,7 +4,7 @@
 @inject SweepsDatabase sweepsDatabase
 @inject GameSessionData gameSessionData
 
-@if (gameInfo != null)
+@if (gameDisplayTable != null)
 {
     <section>
         <header>
@@ -12,26 +12,29 @@
             <p>Information for the current game session.</p>
         </header>
         <div>
-            @if (gameInfo.RoundCount > 0)
+            @if (gameDisplayTable.RoundCount > 0)
             {
-                <table class="table table-dark table-striped">
+                <table class="table table-dark table-bordered">
                     <thead>
                         <tr>
-                            @foreach (KeyValuePair<Player, List<int>> entry in gameInfo.Info)
+                            <th scope="col">#</th>
+                            @foreach (string name in gameDisplayTable.names)
                             {
-                                <th th scope="col">@entry.Key.Name</th>
+                                <th th scope="col">@name</th>
                             }
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (KeyValuePair<Player, List<int>> entry in gameInfo.Info)
+                        @foreach (List<int> displayScoreRound in gameDisplayTable.displayScores)
                         {
                             <tr>
-                                @foreach (int score in entry.Value)
+                                <th scope="row">@roundNumber</th>
+                                @foreach (int score in displayScoreRound)
                                 {
                                     <td>@score</td>
                                 }
                             </tr>
+                            roundNumber++;
                         }
                     </tbody>
                 </table>
@@ -49,10 +52,10 @@ else
 }
 
 @code {
-    GameInfo? gameInfo = null;
+    GameDisplayTable? gameDisplayTable = null;
+    int roundNumber = 1;
     protected override async Task OnInitializedAsync()
     {
-        gameInfo = await sweepsDatabase.GetGameInfoAsync(gameSessionData.currentGameSession.ID);
-
+        gameDisplayTable = await sweepsDatabase.GetGameDisplayTable(gameSessionData.currentGameSession.ID);
     }
 }
