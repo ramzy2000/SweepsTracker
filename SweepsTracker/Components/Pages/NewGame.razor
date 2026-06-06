@@ -4,6 +4,7 @@
 @inject SweepsDatabase sweepsDatabase
 
 @inject GameSessionData gameSessionData
+@inject NavigationManager navigationManager
 
 @if(currentStep == 1)
 {
@@ -144,7 +145,7 @@ else
                 </div>
 
                 <footer class="actions-row two-actions">
-                    <button class="btn btn-outline-light secondary-action" @onclick="StartOver">Start Over</button>
+                    <button class="btn btn-outline-light secondary-action" @onclick="StartGame">Start Game</button>
                 </footer>
             </section>
         }
@@ -253,11 +254,8 @@ else
         }
     }
 
-    private void StartOver()
+    private void StartGame()
     {
-        currentStep = 1;
-        maxScore = null;
-        maxScoreValidationMessage = null;
-        players.Clear();
+        navigationManager.NavigateTo("/gamesession", replace: true);
     }
 }
