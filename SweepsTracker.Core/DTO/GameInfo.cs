@@ -7,4 +7,6 @@ public class GameInfo
     public Dictionary<Player, List<int>> Info = new Dictionary<Player, List<int>>();
 
     public List<Player> WinningPlayers = new List<Player>();
+
+    public int RoundCount = 0;
 }

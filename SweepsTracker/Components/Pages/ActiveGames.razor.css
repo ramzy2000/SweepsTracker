@@ -1,0 +1,16 @@
+.game-card-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+    justify-content: center;
+    color: white;
+}
+
+.game-card {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #495057;
+    color: white;
+    border-radius: 5px;
+}

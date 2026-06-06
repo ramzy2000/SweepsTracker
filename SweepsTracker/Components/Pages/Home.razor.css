@@ -2,3 +2,12 @@
     display: flex;
     justify-content: center;
 }
+
+.button-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 5vh;
+    width: 80%;
+    margin-left: auto;
+    margin-right: auto;
+}

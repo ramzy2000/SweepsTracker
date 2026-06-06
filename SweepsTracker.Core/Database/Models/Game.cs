@@ -8,8 +8,6 @@ public class Game
     [PrimaryKey, AutoIncrement]
     public int ID { get; set; }
 
-    public string Name { get; set; }
-
     public int MaxScore { get; set; }
 
     public string StartDate { get; set; }

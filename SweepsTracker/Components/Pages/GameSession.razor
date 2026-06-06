@@ -1,0 +1,61 @@
+@page "/gamesession"
+@using SweepsTracker.Core
+@inject NavigationManager navigationManager
+@inject SweepsDatabase sweepsDatabase
+@inject GameSessionData gameSessionData
+
+@if (gameDisplayTable != null)
+{
+    <section>
+        <header>
+            <h1>Game Session</h1>
+            <p>Information for the current game session.</p>
+        </header>
+        <div>
+            @if (gameDisplayTable.RoundCount > 0)
+            {
+                <table class="table table-dark table-bordered">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            @foreach (string name in gameDisplayTable.names)
+                            {
+                                <th th scope="col">@name</th>
+                            }
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (List<int> displayScoreRound in gameDisplayTable.displayScores)
+                        {
+                            <tr>
+                                <th scope="row">@roundNumber</th>
+                                @foreach (int score in displayScoreRound)
+                                {
+                                    <td>@score</td>
+                                }
+                            </tr>
+                            roundNumber++;
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <h1>No Rounds in this game yet</h1>
+            }
+        </div>
+    </section>
+}
+else
+{
+    <h1>No Game Found</h1>
+}
+
+@code {
+    GameDisplayTable? gameDisplayTable = null;
+    int roundNumber = 1;
+    protected override async Task OnInitializedAsync()
+    {
+        gameDisplayTable = await sweepsDatabase.GetGameDisplayTable(gameSessionData.currentGameSession.ID);
+    }
+}
