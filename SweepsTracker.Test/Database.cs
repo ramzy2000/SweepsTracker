@@ -401,4 +401,34 @@ public class Database
         await sweepsDatabase.CloseAsync();
         FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
     }
+
+    [Fact]
+    public async Task TestGetPlayersFromGame()
+    {
+        SweepsDatabase sweepsDatabase = new SweepsDatabase();
+
+        Game game = new Game();
+        game.MaxScore = 150;
+
+        Player player = new Player();
+        player.Name = "Casey";
+
+        Player player1 = new Player();
+        player1.Name = "Justine";
+
+        List<Player> players = new List<Player>();
+        players.Add(player);
+        players.Add(player1);
+        await sweepsDatabase.CreateNewGameAsync(game, players);
+
+
+        // test function
+
+        List<Player> playerList = await sweepsDatabase.GetPlayersFromGame(game.ID);
+
+        Assert.True(playerList.Count() == 2);
+
+        await sweepsDatabase.CloseAsync();
+        FileSystem.Kill(SweepsTracker.Core.Constants.DatabasePath);
+    }
 }

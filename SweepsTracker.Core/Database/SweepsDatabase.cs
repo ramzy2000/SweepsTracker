@@ -140,6 +140,19 @@ public class SweepsDatabase
         return "Error: failed to find game record";
     }
 
+    public async Task<List<Player>> GetPlayersFromGame(int gameID)
+    {
+        List<Player> players = new List<Player>();
+        await OpenAsync();
+
+        Game? foundGame = await Database.FindAsync<Game>(gameID);
+        if(foundGame == null)
+            return players;
+
+        players = await Database.Table<Player>().Where(p => p.GameID == gameID).ToListAsync();
+        return players;
+    }
+    
     public async Task<Game?> AddRoundScoresAsync(int gameID, Dictionary<Player, int> roundScores)
     {
         if(roundScores.Count < 0)
