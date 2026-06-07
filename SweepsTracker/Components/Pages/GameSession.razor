@@ -8,8 +8,13 @@
 {
     <section>
         <header>
-            <h1>Game Session</h1>
-            <p>Information for the current game session.</p>
+            <div class="box">
+                <h1>Game Session</h1>
+                <p>Information for the current game session.</p>
+            </div>
+            <div class="box">
+                <h1>Max Score: @gameSessionData.currentGameSession.MaxScore</h1>
+            </div>
         </header>
         <div>
             @if (gameDisplayTable.RoundCount > 0)
