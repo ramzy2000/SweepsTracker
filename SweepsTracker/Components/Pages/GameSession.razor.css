@@ -15,3 +15,8 @@ section {
     padding: 2vh;
     margin-bottom: 2vh;
 }
+
+.button-layout {
+    display: flex;
+    gap: 10px;
+}

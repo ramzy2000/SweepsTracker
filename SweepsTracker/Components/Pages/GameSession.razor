@@ -4,7 +4,7 @@
 @inject SweepsDatabase sweepsDatabase
 @inject GameSessionData gameSessionData
 
-@if (gameDisplayTable != null)
+@if (gameDisplayTable != null && shouldDisplayNewRoundDialog == false)
 {
     <section>
         <header>
@@ -52,8 +52,34 @@
     </section>
 
     <div>
-        <button class="btn btn-primary">Add New Round</button>
+        <button @onclick="AddNewRoundClickedAsync" class="btn btn-primary">Add New Round</button>
     </div>
+}
+else if (shouldDisplayNewRoundDialog)
+{
+    <section>
+        <header>
+            <h1>Enter new round of scores per player</h1>
+        </header>
+
+        <div>
+            @foreach (Player player in players)
+            {
+                <div class="mb-3">
+                    <div class="input-group">
+                        <span class="input-group-text" id="basic-addon3">@player.Name</span>
+                        <input type="text" class="form-control" aria-describedby="basic-addon3 basic-addon4">
+                    </div>
+                </div>
+            }
+
+        </div>
+
+        <div class="button-layout">
+            <button class="btn btn-primary">Add Round</button>
+            <button @onclick="CancelRoundClicked" class="btn btn-primary">Cancel</button>
+        </div>
+    </section>
 }
 else
 {
@@ -63,6 +89,24 @@ else
 @code {
     GameDisplayTable? gameDisplayTable = null;
     int roundNumber = 1;
+
+    bool shouldDisplayNewRoundDialog = false;
+
+
+    List<Player> players = new List<Player>();
+
+
+    private async Task CancelRoundClicked()
+    {
+        shouldDisplayNewRoundDialog = false;
+    }
+
+    private async Task AddNewRoundClickedAsync()
+    {
+        players = await sweepsDatabase.GetPlayersFromGame(gameSessionData.currentGameSession.ID);
+        shouldDisplayNewRoundDialog = true;
+    }
+
     protected override async Task OnInitializedAsync()
     {
         gameDisplayTable = await sweepsDatabase.GetGameDisplayTable(gameSessionData.currentGameSession.ID);
