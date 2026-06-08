@@ -27,6 +27,48 @@ table {
     background-color: #2b2e31;
 }
 
+.input-name {
+    background-color: #2b2e31;
+    color: #e9ecef;
+    border: 1px solid #6c757d;
+    border-radius: 8px;
+    padding: 6px 10px;
+}
+
+.input-name:focus {
+    outline: none;
+    border-color: #adb5bd;
+    box-shadow: 0 0 0 0.15rem rgba(173, 181, 189, 0.4);
+}
+
+.score-entry-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 16px 0;
+}
+
+.score-entry-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #3a3f44;
+    border-radius: 10px;
+    padding: 10px 16px;
+}
+
+.player-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e9ecef;
+}
+
+.score-input {
+    width: 120px;
+    text-align: center;
+    font-size: 1.1rem;
+}
+
 @media (max-width: 480px) {
     header {
         display: flex;
