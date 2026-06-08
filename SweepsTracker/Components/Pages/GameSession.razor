@@ -4,7 +4,7 @@
 @inject SweepsDatabase sweepsDatabase
 @inject GameSessionData gameSessionData
 
-@if (gameDisplayTable != null && shouldDisplayNewRoundDialog == false)
+@if (gameInfo != null && shouldDisplayNewRoundDialog == false)
 {
     <section>
         <header>
@@ -17,37 +17,43 @@
             </div>
         </header>
         <div>
-            @if (gameDisplayTable.RoundCount > 0)
+            @if (gameInfo.RoundCount > 0)
             {
-                <table class="table table-dark table-bordered">
-                    <thead>
-                        <tr>
-                            <th scope="col">#</th>
-                            @foreach (string name in gameDisplayTable.names)
-                            {
-                                <th th scope="col">@name</th>
-                            }
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (List<int> displayScoreRound in gameDisplayTable.displayScores)
-                        {
+                @foreach (KeyValuePair<Player, List<int>> entry in gameInfo.Info)
+                {
+                    roundNumber = 1;
+                    <table class="table table-dark table-bordered">
+                        <thead>
                             <tr>
-                                <th scope="row">@roundNumber</th>
-                                @foreach (int score in displayScoreRound)
-                                {
-                                    <td>@score</td>
-                                }
+                                <th class="center-header" colspan="2">@entry.Key.Name</th>
                             </tr>
-                            roundNumber++;
-                        }
-                    </tbody>
-                </table>
+                            <tr>
+                                <th>Round</th>
+                                <th>Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (int score in entry.Value)
+                            {
+                                <tr>
+                                    <th scope="row">@roundNumber</th>
+                                    <td>@score</td>
+                                </tr>
+                                roundNumber++;
+                            }
+                            <tr class="total table-active">
+                                <th>Total Score</th>
+                                <th>@entry.Key.TotalScore</th>
+                            </tr>
+                        </tbody>
+                    </table>
+                }
             }
             else
             {
                 <h1>No Rounds in this game yet</h1>
             }
+
         </div>
     </section>
 
@@ -72,7 +78,6 @@ else if (shouldDisplayNewRoundDialog)
                     </div>
                 </div>
             }
-
         </div>
 
         <div class="button-layout">
@@ -87,7 +92,7 @@ else
 }
 
 @code {
-    GameDisplayTable? gameDisplayTable = null;
+    GameInfo? gameInfo = null;
     int roundNumber = 1;
 
     bool shouldDisplayNewRoundDialog = false;
@@ -109,6 +114,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        gameDisplayTable = await sweepsDatabase.GetGameDisplayTable(gameSessionData.currentGameSession.ID);
+        gameInfo = await sweepsDatabase.GetGameInfoAsync(gameSessionData.currentGameSession.ID);
     }
 }
